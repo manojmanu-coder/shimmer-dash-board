@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { MdAdd, MdSave, MdImage } from "react-icons/md";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MdAdd, MdSave, MdImage, MdEdit, MdDelete } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data for dropdowns
@@ -71,6 +72,7 @@ export default function Products() {
   const [currentProduct, setCurrentProduct] = useState<Omit<Product, 'id'>>(initialProduct);
   const [productList, setProductList] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [activeTab, setActiveTab] = useState("add");
   const { toast } = useToast();
 
   const handleInputChange = (field: keyof Omit<Product, 'id'>, value: string) => {
@@ -114,6 +116,7 @@ export default function Products() {
     setProductList(prev => [...prev, newProduct]);
     setCurrentProduct(initialProduct);
     setSelectedCategory("");
+    setActiveTab("all"); // Switch to All Products tab
     
     toast({
       title: "Success",
@@ -143,8 +146,16 @@ export default function Products() {
     setProductList([]);
   };
 
+  const deleteProduct = (id: string) => {
+    setProductList(prev => prev.filter(product => product.id !== id));
+    toast({
+      title: "Success",
+      description: "Product removed from list"
+    });
+  };
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in bg-background">
       <div>
         <h2 className="text-3xl font-bold text-foreground">Products Management</h2>
         <p className="text-muted-foreground mt-2">
@@ -152,7 +163,18 @@ export default function Products() {
         </p>
       </div>
 
-      <Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-muted">
+          <TabsTrigger value="add" className="bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Add Product
+          </TabsTrigger>
+          <TabsTrigger value="all" className="bg-background data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            All Products ({productList.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="add" className="mt-6">
+          <Card className="bg-background border-border">
         <CardHeader>
           <CardTitle>Add New Product</CardTitle>
           <CardDescription>Fill in the product details below</CardDescription>
@@ -412,43 +434,82 @@ export default function Products() {
             </Button>
           </div>
         </CardContent>
-      </Card>
-
-      {/* Product List */}
-      {productList.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Added Products ({productList.length})</CardTitle>
-              <CardDescription>Review products before saving</CardDescription>
-            </div>
-            <Button onClick={saveAllProducts} variant="default" className="bg-admin-gradient">
-              <MdSave className="h-4 w-4 mr-2" />
-              Save All Products
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {productList.map((product, index) => (
-                <div key={product.id} className="p-4 bg-muted/50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{product.productName}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {product.category} - {product.brand} - ₹{product.sellingPrice}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">#{index + 1}</p>
-                      <p className="text-xs text-muted-foreground">{product.stockUnits} units</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
         </Card>
-      )}
+        </TabsContent>
+
+        <TabsContent value="all" className="mt-6">
+          <Card className="bg-background border-border">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>All Products ({productList.length})</CardTitle>
+                <CardDescription>
+                  {productList.length === 0 
+                    ? "No products added yet" 
+                    : "Review and manage your products"
+                  }
+                </CardDescription>
+              </div>
+              {productList.length > 0 && (
+                <Button onClick={saveAllProducts} variant="default" className="bg-primary hover:bg-primary/90">
+                  <MdSave className="h-4 w-4 mr-2" />
+                  Save All Products
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="bg-background">
+              {productList.length === 0 ? (
+                <div className="text-center py-12 bg-background">
+                  <p className="text-muted-foreground text-lg">No products added yet.</p>
+                  <p className="text-muted-foreground">Click on "Add Product" tab to start adding products.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {productList.map((product, index) => (
+                    <div key={product.id} className="p-4 bg-card border border-border rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-foreground">{product.productName}</h4>
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                              #{index + 1}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+                            <p><span className="font-medium">Category:</span> {product.category}</p>
+                            <p><span className="font-medium">Brand:</span> {product.brand}</p>
+                            <p><span className="font-medium">Selling Price:</span> ₹{product.sellingPrice}</p>
+                            <p><span className="font-medium">MRP:</span> ₹{product.mrp}</p>
+                            <p><span className="font-medium">Stock:</span> {product.stockUnits} units</p>
+                            <p><span className="font-medium">HSN:</span> {product.hsnCode}</p>
+                          </div>
+                          {product.description && (
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                              {product.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button size="sm" variant="outline" className="bg-background border-border">
+                            <MdEdit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => deleteProduct(product.id)}
+                            className="bg-background border-border hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            <MdDelete className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
