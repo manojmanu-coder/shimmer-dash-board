@@ -191,14 +191,16 @@ export default function MasterData() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <div className="overflow-x-auto scrollbar-hide">
-          <TabsList className="flex w-max min-w-full">
-            <TabsTrigger value="categories" className="flex-shrink-0 text-xs md:text-sm">Categories</TabsTrigger>
-            <TabsTrigger value="subcategories" className="flex-shrink-0 text-xs md:text-sm">Subcategories</TabsTrigger>
-            <TabsTrigger value="brands" className="flex-shrink-0 text-xs md:text-sm">Brands</TabsTrigger>
-            <TabsTrigger value="units" className="flex-shrink-0 text-xs md:text-sm">Unit Quantities</TabsTrigger>
-            <TabsTrigger value="gst" className="flex-shrink-0 text-xs md:text-sm">GST Rates</TabsTrigger>
-          </TabsList>
+        <div className="w-full overflow-hidden">
+          <div className="overflow-x-auto scrollbar-hide pb-1">
+            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max">
+              <TabsTrigger value="categories" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Categories</TabsTrigger>
+              <TabsTrigger value="subcategories" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Subcategories</TabsTrigger>
+              <TabsTrigger value="brands" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Brands</TabsTrigger>
+              <TabsTrigger value="units" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Unit Quantities</TabsTrigger>
+              <TabsTrigger value="gst" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">GST Rates</TabsTrigger>
+            </TabsList>
+          </div>
         </div>
 
         <TabsContent value="categories">
