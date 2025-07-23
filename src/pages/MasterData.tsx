@@ -191,12 +191,12 @@ export default function MasterData() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="subcategories">Subcategories</TabsTrigger>
-          <TabsTrigger value="brands">Brands</TabsTrigger>
-          <TabsTrigger value="units">Unit Quantities</TabsTrigger>
-          <TabsTrigger value="gst">GST Rates</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-1">
+          <TabsTrigger value="categories" className="text-xs md:text-sm">Categories</TabsTrigger>
+          <TabsTrigger value="subcategories" className="text-xs md:text-sm">Subcategories</TabsTrigger>
+          <TabsTrigger value="brands" className="text-xs md:text-sm">Brands</TabsTrigger>
+          <TabsTrigger value="units" className="text-xs md:text-sm">Unit Quantities</TabsTrigger>
+          <TabsTrigger value="gst" className="text-xs md:text-sm">GST Rates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories">
