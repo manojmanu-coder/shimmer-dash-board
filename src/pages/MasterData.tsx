@@ -191,13 +191,15 @@ export default function MasterData() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
-          <TabsTrigger value="categories" className="flex-shrink-0 text-xs md:text-sm">Categories</TabsTrigger>
-          <TabsTrigger value="subcategories" className="flex-shrink-0 text-xs md:text-sm">Subcategories</TabsTrigger>
-          <TabsTrigger value="brands" className="flex-shrink-0 text-xs md:text-sm">Brands</TabsTrigger>
-          <TabsTrigger value="units" className="flex-shrink-0 text-xs md:text-sm">Unit Quantities</TabsTrigger>
-          <TabsTrigger value="gst" className="flex-shrink-0 text-xs md:text-sm">GST Rates</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto scrollbar-hide">
+          <TabsList className="flex w-max min-w-full">
+            <TabsTrigger value="categories" className="flex-shrink-0 text-xs md:text-sm">Categories</TabsTrigger>
+            <TabsTrigger value="subcategories" className="flex-shrink-0 text-xs md:text-sm">Subcategories</TabsTrigger>
+            <TabsTrigger value="brands" className="flex-shrink-0 text-xs md:text-sm">Brands</TabsTrigger>
+            <TabsTrigger value="units" className="flex-shrink-0 text-xs md:text-sm">Unit Quantities</TabsTrigger>
+            <TabsTrigger value="gst" className="flex-shrink-0 text-xs md:text-sm">GST Rates</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="categories">
           <Card>
