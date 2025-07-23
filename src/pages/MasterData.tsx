@@ -182,7 +182,7 @@ export default function MasterData() {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="w-full max-w-full space-y-6 animate-fade-in">
       <div>
         <h2 className="text-3xl font-bold text-foreground">Master Data Management</h2>
         <p className="text-muted-foreground mt-2">
@@ -190,10 +190,10 @@ export default function MasterData() {
         </p>
       </div>
 
-      <Tabs defaultValue="categories" className="space-y-6">
-        <div className="border-b border-border">
-          <div className="overflow-x-auto">
-            <TabsList className="w-max bg-transparent border-0 p-0 h-auto">
+      <Tabs defaultValue="categories" className="w-full space-y-6">
+        <div className="w-full border-b border-border">
+          <div className="w-full overflow-x-auto">
+            <TabsList className="inline-flex w-max min-w-full bg-transparent border-0 p-0 h-auto">
               <TabsTrigger 
                 value="categories" 
                 className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
