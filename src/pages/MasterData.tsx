@@ -191,12 +191,12 @@ export default function MasterData() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-1">
-          <TabsTrigger value="categories" className="text-xs md:text-sm">Categories</TabsTrigger>
-          <TabsTrigger value="subcategories" className="text-xs md:text-sm">Subcategories</TabsTrigger>
-          <TabsTrigger value="brands" className="text-xs md:text-sm">Brands</TabsTrigger>
-          <TabsTrigger value="units" className="text-xs md:text-sm">Unit Quantities</TabsTrigger>
-          <TabsTrigger value="gst" className="text-xs md:text-sm">GST Rates</TabsTrigger>
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
+          <TabsTrigger value="categories" className="flex-shrink-0 text-xs md:text-sm">Categories</TabsTrigger>
+          <TabsTrigger value="subcategories" className="flex-shrink-0 text-xs md:text-sm">Subcategories</TabsTrigger>
+          <TabsTrigger value="brands" className="flex-shrink-0 text-xs md:text-sm">Brands</TabsTrigger>
+          <TabsTrigger value="units" className="flex-shrink-0 text-xs md:text-sm">Unit Quantities</TabsTrigger>
+          <TabsTrigger value="gst" className="flex-shrink-0 text-xs md:text-sm">GST Rates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories">
