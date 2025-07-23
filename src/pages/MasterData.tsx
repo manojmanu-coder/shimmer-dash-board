@@ -191,14 +191,39 @@ export default function MasterData() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <div className="w-full overflow-hidden">
-          <div className="overflow-x-auto scrollbar-hide pb-1">
-            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max">
-              <TabsTrigger value="categories" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Categories</TabsTrigger>
-              <TabsTrigger value="subcategories" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Subcategories</TabsTrigger>
-              <TabsTrigger value="brands" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Brands</TabsTrigger>
-              <TabsTrigger value="units" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">Unit Quantities</TabsTrigger>
-              <TabsTrigger value="gst" className="whitespace-nowrap text-xs md:text-sm px-2 md:px-3">GST Rates</TabsTrigger>
+        <div className="border-b border-border">
+          <div className="overflow-x-auto">
+            <TabsList className="w-max bg-transparent border-0 p-0 h-auto">
+              <TabsTrigger 
+                value="categories" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Categories
+              </TabsTrigger>
+              <TabsTrigger 
+                value="subcategories" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Subcategories
+              </TabsTrigger>
+              <TabsTrigger 
+                value="brands" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Brands
+              </TabsTrigger>
+              <TabsTrigger 
+                value="units" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Unit Quantities
+              </TabsTrigger>
+              <TabsTrigger 
+                value="gst" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                GST Rates
+              </TabsTrigger>
             </TabsList>
           </div>
         </div>
