@@ -5,8 +5,9 @@ import {
   MdShoppingCart, 
   MdPeople,
   MdCategory,
-  MdBusiness,
-  MdPercent
+  MdStorefront,
+  MdWarehouse,
+  MdAssignment
 } from "react-icons/md";
 import {
   Sidebar,
@@ -28,8 +29,10 @@ const mainItems = [
 
 const masterDataItems = [
   { title: "Categories", url: "/master/categories", icon: MdCategory },
-  { title: "Brands", url: "/master/brands", icon: MdBusiness },
-  { title: "GST Rates", url: "/master/gst-rates", icon: MdPercent },
+  { title: "Seller", url: "/master/seller", icon: MdStorefront },
+  { title: "Warehouse", url: "/master/warehouse", icon: MdWarehouse },
+  { title: "Inventory", url: "/master/inventory", icon: MdInventory },
+  { title: "Stock", url: "/master/stock", icon: MdAssignment },
 ];
 
 export function AppSidebar() {

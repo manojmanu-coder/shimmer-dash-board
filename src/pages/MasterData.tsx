@@ -4,11 +4,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MdAdd, MdDelete, MdEdit, MdSave, MdCancel } from "react-icons/md";
 import { useToast } from "@/hooks/use-toast";
 
+// Data interfaces
+interface Seller {
+  id: string;
+  name: string;
+  address: string;
+  mobile: string;
+}
+
+interface Warehouse {
+  id: string;
+  name: string;
+  address: string;
+  pincodes: string[];
+}
+
+interface Product {
+  name: string;
+  quantity: number;
+  costPrice: number;
+  taxRate: number;
+}
+
+interface Stock {
+  id: string;
+  sellerId: string;
+  warehouseId: string;
+  products: Product[];
+}
+
+interface MasterDataState {
+  categories: string[];
+  subcategories: Record<string, string[]>;
+  sellers: Seller[];
+  warehouses: Warehouse[];
+  stocks: Stock[];
+}
+
 // Mock data for master data
-const initialData = {
+const initialData: MasterDataState = {
   categories: ["Electronics", "Clothing", "Home & Garden", "Sports", "Books"],
   subcategories: {
     "Electronics": ["Smartphones", "Laptops", "Accessories"],
@@ -17,24 +55,33 @@ const initialData = {
     "Sports": ["Fitness", "Outdoor", "Team Sports"],
     "Books": ["Fiction", "Non-Fiction", "Educational"]
   },
-  brands: ["Apple", "Samsung", "Nike", "Adidas", "IKEA", "Sony"],
-  unitQuantities: ["Piece", "Kg", "Liter", "Meter", "Pack"],
-  gstRates: ["0%", "5%", "12%", "18%", "28%"]
+  sellers: [],
+  warehouses: [],
+  stocks: []
 };
-
-interface MasterDataState {
-  categories: string[];
-  subcategories: Record<string, string[]>;
-  brands: string[];
-  unitQuantities: string[];
-  gstRates: string[];
-}
 
 export default function MasterData() {
   const [data, setData] = useState<MasterDataState>(initialData);
   const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState<{ type: string; index: number; value: string } | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  
+  // Seller form state
+  const [sellerForm, setSellerForm] = useState({ name: "", address: "", mobile: "" });
+  
+  // Warehouse form state
+  const [warehouseForm, setWarehouseForm] = useState({ name: "", address: "", pincodes: "" });
+  
+  // Stock form state
+  const [stockForm, setStockForm] = useState({
+    sellerId: "",
+    warehouseId: "",
+    productName: "",
+    quantity: "",
+    costPrice: "",
+    taxRate: ""
+  });
+  
   const { toast } = useToast();
 
   const addItem = (type: keyof MasterDataState) => {
@@ -78,6 +125,125 @@ export default function MasterData() {
     });
   };
 
+  const addSeller = () => {
+    if (!sellerForm.name || !sellerForm.address || !sellerForm.mobile) {
+      toast({
+        title: "Error",
+        description: "Please fill all seller fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newSeller: Seller = {
+      id: Date.now().toString(),
+      ...sellerForm
+    };
+
+    setData(prev => ({
+      ...prev,
+      sellers: [...prev.sellers, newSeller]
+    }));
+
+    setSellerForm({ name: "", address: "", mobile: "" });
+    toast({
+      title: "Success",
+      description: "Seller added successfully"
+    });
+  };
+
+  const addWarehouse = () => {
+    if (!warehouseForm.name || !warehouseForm.address || !warehouseForm.pincodes) {
+      toast({
+        title: "Error",
+        description: "Please fill all warehouse fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newWarehouse: Warehouse = {
+      id: Date.now().toString(),
+      name: warehouseForm.name,
+      address: warehouseForm.address,
+      pincodes: warehouseForm.pincodes.split(",").map(p => p.trim())
+    };
+
+    setData(prev => ({
+      ...prev,
+      warehouses: [...prev.warehouses, newWarehouse]
+    }));
+
+    setWarehouseForm({ name: "", address: "", pincodes: "" });
+    toast({
+      title: "Success",
+      description: "Warehouse added successfully"
+    });
+  };
+
+  const addStock = () => {
+    if (!stockForm.sellerId || !stockForm.warehouseId || !stockForm.productName || 
+        !stockForm.quantity || !stockForm.costPrice || !stockForm.taxRate) {
+      toast({
+        title: "Error",
+        description: "Please fill all stock fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const product: Product = {
+      name: stockForm.productName,
+      quantity: parseInt(stockForm.quantity),
+      costPrice: parseFloat(stockForm.costPrice),
+      taxRate: parseFloat(stockForm.taxRate)
+    };
+
+    // Check if stock entry exists for this seller and warehouse
+    const existingStockIndex = data.stocks.findIndex(
+      stock => stock.sellerId === stockForm.sellerId && stock.warehouseId === stockForm.warehouseId
+    );
+
+    if (existingStockIndex >= 0) {
+      // Add product to existing stock
+      setData(prev => ({
+        ...prev,
+        stocks: prev.stocks.map((stock, index) => 
+          index === existingStockIndex 
+            ? { ...stock, products: [...stock.products, product] }
+            : stock
+        )
+      }));
+    } else {
+      // Create new stock entry
+      const newStock: Stock = {
+        id: Date.now().toString(),
+        sellerId: stockForm.sellerId,
+        warehouseId: stockForm.warehouseId,
+        products: [product]
+      };
+
+      setData(prev => ({
+        ...prev,
+        stocks: [...prev.stocks, newStock]
+      }));
+    }
+
+    setStockForm({
+      sellerId: "",
+      warehouseId: "",
+      productName: "",
+      quantity: "",
+      costPrice: "",
+      taxRate: ""
+    });
+
+    toast({
+      title: "Success",
+      description: "Stock added successfully"
+    });
+  };
+
   const deleteItem = (type: keyof MasterDataState, index: number, category?: string) => {
     if (type === "subcategories" && category) {
       setData(prev => ({
@@ -90,7 +256,7 @@ export default function MasterData() {
     } else {
       setData(prev => ({
         ...prev,
-        [type]: (prev[type] as string[]).filter((_, i) => i !== index)
+        [type]: (prev[type] as any[]).filter((_, i) => i !== index)
       }));
     }
 
@@ -181,12 +347,22 @@ export default function MasterData() {
     </div>
   );
 
+  const getSellerName = (sellerId: string) => {
+    const seller = data.sellers.find(s => s.id === sellerId);
+    return seller ? seller.name : "Unknown Seller";
+  };
+
+  const getWarehouseName = (warehouseId: string) => {
+    const warehouse = data.warehouses.find(w => w.id === warehouseId);
+    return warehouse ? warehouse.name : "Unknown Warehouse";
+  };
+
   return (
-    <div className="w-full max-w-full space-y-6 animate-fade-in">
+    <div className="container mx-auto max-w-7xl space-y-6 animate-fade-in p-4">
       <div>
         <h2 className="text-3xl font-bold text-foreground">Master Data Management</h2>
         <p className="text-muted-foreground mt-2">
-          Manage categories, brands, units, and other master data
+          Manage categories, sellers, warehouses, inventory, and stock data
         </p>
       </div>
 
@@ -207,22 +383,28 @@ export default function MasterData() {
                 Subcategories
               </TabsTrigger>
               <TabsTrigger 
-                value="brands" 
+                value="seller" 
                 className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
               >
-                Brands
+                Seller
               </TabsTrigger>
               <TabsTrigger 
-                value="units" 
+                value="warehouse" 
                 className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
               >
-                Unit Quantities
+                Warehouse
               </TabsTrigger>
               <TabsTrigger 
-                value="gst" 
+                value="inventory" 
                 className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
               >
-                GST Rates
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger 
+                value="stock" 
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Stock
               </TabsTrigger>
             </TabsList>
           </div>
@@ -300,74 +482,297 @@ export default function MasterData() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="brands">
+        <TabsContent value="seller">
           <Card>
             <CardHeader>
-              <CardTitle>Brands</CardTitle>
-              <CardDescription>Manage product brands</CardDescription>
+              <CardTitle>Seller Management</CardTitle>
+              <CardDescription>Add and manage sellers</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter new brand"
-                  value={newItem}
-                  onChange={(e) => setNewItem(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={() => addItem("brands")}>
-                  <MdAdd className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Seller Name</Label>
+                  <Input
+                    placeholder="Enter seller name"
+                    value={sellerForm.name}
+                    onChange={(e) => setSellerForm(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Address</Label>
+                  <Input
+                    placeholder="Enter address"
+                    value={sellerForm.address}
+                    onChange={(e) => setSellerForm(prev => ({ ...prev, address: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Mobile</Label>
+                  <Input
+                    placeholder="Enter mobile number"
+                    value={sellerForm.mobile}
+                    onChange={(e) => setSellerForm(prev => ({ ...prev, mobile: e.target.value }))}
+                  />
+                </div>
               </div>
-              {renderItemList(data.brands, "brands")}
+              <Button onClick={addSeller}>
+                <MdAdd className="h-4 w-4 mr-2" />
+                Add Seller
+              </Button>
+
+              <div className="space-y-2">
+                <h4 className="font-medium">Added Sellers:</h4>
+                {data.sellers.map((seller, index) => (
+                  <div key={seller.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <p className="font-medium">{seller.name}</p>
+                      <p className="text-sm text-muted-foreground">{seller.address}</p>
+                      <p className="text-sm text-muted-foreground">{seller.mobile}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteItem("sellers", index)}
+                      className="hover:bg-red-50 hover:text-red-600"
+                    >
+                      <MdDelete className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="units">
+        <TabsContent value="warehouse">
           <Card>
             <CardHeader>
-              <CardTitle>Unit Quantities</CardTitle>
-              <CardDescription>Manage measurement units</CardDescription>
+              <CardTitle>Warehouse Management</CardTitle>
+              <CardDescription>Add and manage warehouses</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter new unit (e.g., Kg, Liter)"
-                  value={newItem}
-                  onChange={(e) => setNewItem(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={() => addItem("unitQuantities")}>
-                  <MdAdd className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Warehouse Name</Label>
+                  <Input
+                    placeholder="Enter warehouse name"
+                    value={warehouseForm.name}
+                    onChange={(e) => setWarehouseForm(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Address</Label>
+                  <Input
+                    placeholder="Enter address"
+                    value={warehouseForm.address}
+                    onChange={(e) => setWarehouseForm(prev => ({ ...prev, address: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Pincodes (comma separated)</Label>
+                  <Input
+                    placeholder="Enter pincodes (e.g., 110001, 110002)"
+                    value={warehouseForm.pincodes}
+                    onChange={(e) => setWarehouseForm(prev => ({ ...prev, pincodes: e.target.value }))}
+                  />
+                </div>
               </div>
-              {renderItemList(data.unitQuantities, "unitQuantities")}
+              <Button onClick={addWarehouse}>
+                <MdAdd className="h-4 w-4 mr-2" />
+                Add Warehouse
+              </Button>
+
+              <div className="space-y-2">
+                <h4 className="font-medium">Added Warehouses:</h4>
+                {data.warehouses.map((warehouse, index) => (
+                  <div key={warehouse.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div>
+                      <p className="font-medium">{warehouse.name}</p>
+                      <p className="text-sm text-muted-foreground">{warehouse.address}</p>
+                      <p className="text-sm text-muted-foreground">Pincodes: {warehouse.pincodes.join(", ")}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteItem("warehouses", index)}
+                      className="hover:bg-red-50 hover:text-red-600"
+                    >
+                      <MdDelete className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="gst">
+        <TabsContent value="inventory">
           <Card>
             <CardHeader>
-              <CardTitle>GST Rates</CardTitle>
-              <CardDescription>Manage GST tax rates</CardDescription>
+              <CardTitle>Inventory Overview</CardTitle>
+              <CardDescription>View warehouse, stock, and seller details for products</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {data.stocks.map((stock) => (
+                  <div key={stock.id} className="border rounded-lg p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <h5 className="font-medium text-sm text-muted-foreground">Seller Details</h5>
+                        <p className="font-medium">{getSellerName(stock.sellerId)}</p>
+                      </div>
+                      <div>
+                        <h5 className="font-medium text-sm text-muted-foreground">Warehouse Details</h5>
+                        <p className="font-medium">{getWarehouseName(stock.warehouseId)}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <h5 className="font-medium text-sm text-muted-foreground mb-2">Products</h5>
+                      <div className="space-y-2">
+                        {stock.products.map((product, index) => (
+                          <div key={index} className="grid grid-cols-4 gap-4 p-3 bg-muted/30 rounded">
+                            <div>
+                              <span className="text-sm font-medium">{product.name}</span>
+                            </div>
+                            <div>
+                              <span className="text-sm">Qty: {product.quantity}</span>
+                            </div>
+                            <div>
+                              <span className="text-sm">Cost: ₹{product.costPrice}</span>
+                            </div>
+                            <div>
+                              <span className="text-sm">Tax: {product.taxRate}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {data.stocks.length === 0 && (
+                  <p className="text-muted-foreground text-center py-8">No inventory data available. Add stock entries first.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="stock">
+          <Card>
+            <CardHeader>
+              <CardTitle>Stock Management</CardTitle>
+              <CardDescription>Add and manage stock entries</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter new GST rate (e.g., 18%)"
-                  value={newItem}
-                  onChange={(e) => setNewItem(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={() => addItem("gstRates")}>
-                  <MdAdd className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Select Seller</Label>
+                  <Select value={stockForm.sellerId} onValueChange={(value) => setStockForm(prev => ({ ...prev, sellerId: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a seller" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {data.sellers.map((seller) => (
+                        <SelectItem key={seller.id} value={seller.id}>
+                          {seller.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Select Warehouse</Label>
+                  <Select value={stockForm.warehouseId} onValueChange={(value) => setStockForm(prev => ({ ...prev, warehouseId: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a warehouse" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {data.warehouses.map((warehouse) => (
+                        <SelectItem key={warehouse.id} value={warehouse.id}>
+                          {warehouse.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              {renderItemList(data.gstRates, "gstRates")}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>Product Name</Label>
+                  <Input
+                    placeholder="Enter product name"
+                    value={stockForm.productName}
+                    onChange={(e) => setStockForm(prev => ({ ...prev, productName: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Quantity</Label>
+                  <Input
+                    type="number"
+                    placeholder="Enter quantity"
+                    value={stockForm.quantity}
+                    onChange={(e) => setStockForm(prev => ({ ...prev, quantity: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cost Price</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter cost price"
+                    value={stockForm.costPrice}
+                    onChange={(e) => setStockForm(prev => ({ ...prev, costPrice: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tax Rate (%)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter tax rate"
+                    value={stockForm.taxRate}
+                    onChange={(e) => setStockForm(prev => ({ ...prev, taxRate: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <Button onClick={addStock}>
+                <MdAdd className="h-4 w-4 mr-2" />
+                Add Stock Entry
+              </Button>
+
+              <div className="space-y-2">
+                <h4 className="font-medium">Stock Entries:</h4>
+                {data.stocks.map((stock, index) => (
+                  <div key={stock.id} className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="font-medium">Seller:</span> {getSellerName(stock.sellerId)} | 
+                        <span className="font-medium ml-2">Warehouse:</span> {getWarehouseName(stock.warehouseId)}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteItem("stocks", index)}
+                        className="hover:bg-red-50 hover:text-red-600"
+                      >
+                        <MdDelete className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+                      {stock.products.map((product, pIndex) => (
+                        <div key={pIndex} className="p-2 bg-background rounded border">
+                          <p className="font-medium">{product.name}</p>
+                          <p>Qty: {product.quantity}</p>
+                          <p>Price: ₹{product.costPrice}</p>
+                          <p>Tax: {product.taxRate}%</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
