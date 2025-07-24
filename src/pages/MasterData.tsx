@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,10 +62,25 @@ const initialData: MasterDataState = {
 };
 
 export default function MasterData() {
+  const location = useLocation();
+  const { toast } = useToast();
+  
+  // Determine active tab based on route
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.includes('/seller')) return 'seller';
+    if (path.includes('/warehouse')) return 'warehouse';
+    if (path.includes('/inventory')) return 'inventory';
+    if (path.includes('/stock')) return 'stock';
+    if (path.includes('/categories')) return 'categories';
+    return 'subcategories';
+  };
+
   const [data, setData] = useState<MasterDataState>(initialData);
   const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState<{ type: string; index: number; value: string } | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [activeTab, setActiveTab] = useState(getActiveTab());
   
   // Seller form state
   const [sellerForm, setSellerForm] = useState({ name: "", address: "", mobile: "" });
@@ -81,8 +97,11 @@ export default function MasterData() {
     costPrice: "",
     taxRate: ""
   });
-  
-  const { toast } = useToast();
+
+  // Update active tab when route changes
+  useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [location.pathname]);
 
   const addItem = (type: keyof MasterDataState) => {
     if (!newItem.trim()) {
@@ -366,7 +385,7 @@ export default function MasterData() {
         </p>
       </div>
 
-      <Tabs defaultValue="categories" className="w-full space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
         <div className="w-full border-b border-border">
           <div className="w-full overflow-x-auto">
             <TabsList className="inline-flex w-max min-w-full bg-transparent border-0 p-0 h-auto">

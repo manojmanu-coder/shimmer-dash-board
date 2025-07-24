@@ -45,12 +45,22 @@ const App = () => (
               <MasterData />
             </AdminLayout>
           } />
-          <Route path="/master/brands" element={
+          <Route path="/master/seller" element={
             <AdminLayout>
               <MasterData />
             </AdminLayout>
           } />
-          <Route path="/master/gst-rates" element={
+          <Route path="/master/warehouse" element={
+            <AdminLayout>
+              <MasterData />
+            </AdminLayout>
+          } />
+          <Route path="/master/inventory" element={
+            <AdminLayout>
+              <MasterData />
+            </AdminLayout>
+          } />
+          <Route path="/master/stock" element={
             <AdminLayout>
               <MasterData />
             </AdminLayout>
